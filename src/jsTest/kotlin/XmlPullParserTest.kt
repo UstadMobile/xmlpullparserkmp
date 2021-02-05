@@ -1,5 +1,4 @@
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class XmlPullParserTest {
 
@@ -45,36 +44,39 @@ class XmlPullParserTest {
             "</body>\n" +
             "</html>"
 
+    lateinit var umXmlPullParser: UmXmlPullParser
+
+    @BeforeTest
+    fun settingUp(){
+        umXmlPullParser = UmXmlPullParser()
+    }
+
     @Test
     fun givenParsedXmlContent_whenFirstNextIsCalled_ShouldBeDocumentRead(){
-        val xmlPullParser = UmXmlPullParser()
-        xmlPullParser.setInput(XML_CONTENT)
-        assertEquals(ParserEvent.START_DOCUMENT,xmlPullParser.next())
+        umXmlPullParser.setInput(XML_CONTENT)
+        assertEquals(ParserEvent.START_DOCUMENT,umXmlPullParser.next())
     }
 
     @Test
     fun givenParsedXhtmlContent_whenFirstNextIsCalled_ShouldBeDocumentRead(){
-        val xmlPullParser = UmXmlPullParser()
-        xmlPullParser.setInput(XHTML_CONTENT)
-        assertEquals(ParserEvent.START_DOCUMENT,xmlPullParser.next())
+        umXmlPullParser.setInput(XHTML_CONTENT)
+        assertEquals(ParserEvent.START_DOCUMENT,umXmlPullParser.next())
     }
 
     @Test
     fun givenParsedXmlContentAfterDocumentRead_whenNextIsCalled_ShouldBeTagRead(){
-        val xmlPullParser = UmXmlPullParser()
-        xmlPullParser.setInput(XML_CONTENT)
+        umXmlPullParser.setInput(XML_CONTENT)
         //read document
-        xmlPullParser.next()
-        assertEquals(ParserEvent.START_TAG,xmlPullParser.next())
+        umXmlPullParser.next()
+        assertEquals(ParserEvent.START_TAG,umXmlPullParser.next())
     }
 
     @Test
     fun givenParsedXhtmlContentAfterDocumentRead_whenNextIsCalled_ShouldBeTagRead(){
-        val xmlPullParser = UmXmlPullParser()
-        xmlPullParser.setInput(XHTML_CONTENT)
+        umXmlPullParser.setInput(XHTML_CONTENT)
         //read document
-        xmlPullParser.next()
-        assertEquals(ParserEvent.START_TAG,xmlPullParser.next())
+        umXmlPullParser.next()
+        assertEquals(ParserEvent.START_TAG,umXmlPullParser.next())
     }
 
 }

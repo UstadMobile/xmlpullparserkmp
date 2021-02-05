@@ -2,6 +2,7 @@ import ParserEvent.Companion.END_DOCUMENT
 import ParserEvent.Companion.END_TAG
 import ParserEvent.Companion.START_DOCUMENT
 import ParserEvent.Companion.START_TAG
+import ParserEvent.Companion.TEXT
 import kotlinx.browser.document
 import org.w3c.dom.Node
 import org.w3c.dom.NodeFilter
@@ -38,6 +39,12 @@ class UmXmlPullParser: XmlPullParser {
             })
 
             if(nextNode?.hasChildNodes() == false){
+                if(nextNode?.nodeType == Node.TEXT_NODE){
+                    eventsStack.add(TEXT to ParserEvent().apply {
+                        eventNode = nextNode
+                        eventNodeDepth = parentNodesStack.size + 1
+                    })
+                }
                 eventsStack.add(END_TAG to ParserEvent().apply {
                     eventNode = nextNode
                     eventNodeDepth = parentNodesStack.size + 1
@@ -86,15 +93,18 @@ class UmXmlPullParser: XmlPullParser {
 
 
     override fun getDepth(): Int {
-        TODO("Not yet implemented")
+        return currentEvent?.second?.eventNodeDepth ?: -1
     }
 
     override fun isWhitespace(): Boolean {
-        TODO("Not yet implemented")
+        if(currentEvent?.first == TEXT){
+            return getText().isNullOrEmpty()
+        }
+        return false
     }
 
     override fun getText(): String? {
-        TODO("Not yet implemented")
+        return currentEvent?.second?.eventNode?.textContent
     }
 
     override fun getNamespace(): String? {
@@ -106,7 +116,7 @@ class UmXmlPullParser: XmlPullParser {
     }
 
     override fun getName(): String? {
-        TODO("Not yet implemented")
+        return currentEvent?.second?.eventNode?.nodeName
     }
 
     override fun getPrefix(): String? {

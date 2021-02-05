@@ -4,7 +4,7 @@ class ParserEvent {
 
     var eventNode: Node? = null
 
-    var eventNodeDepth: Int = 0
+    var eventNodeDepth: Int = -1
 
 
     companion object {
