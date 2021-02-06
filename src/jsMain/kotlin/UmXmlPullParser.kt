@@ -4,22 +4,20 @@ import ParserEvent.Companion.START_DOCUMENT
 import ParserEvent.Companion.START_TAG
 import ParserEvent.Companion.TEXT
 import kotlinx.browser.document
-import org.w3c.dom.Node
-import org.w3c.dom.NodeFilter
-import org.w3c.dom.TreeWalker
+import org.w3c.dom.*
 import org.w3c.dom.parsing.DOMParser
 
 class UmXmlPullParser: XmlPullParser {
 
     lateinit var treeWalker: TreeWalker
 
-    private val eventsStack = mutableListOf<Pair<Int, ParserEvent>>()
+    private val eventsStack = mutableListOf<ParserEvent>()
 
     private val parentNodesStack = mutableListOf<Node>()
 
     private var nextNode: Node? = null
 
-    private var currentEvent: Pair<Int, ParserEvent>? = null
+    private var currentEvent: ParserEvent? = null
 
     private var lastParentNode: Node? = null
 
@@ -33,20 +31,23 @@ class UmXmlPullParser: XmlPullParser {
 
     private fun logParserEvents(){
         while ({ nextNode = treeWalker.nextNode(); nextNode }() != null){
-            eventsStack.add(START_TAG to ParserEvent().apply {
+            eventsStack.add(ParserEvent().apply {
                 eventNode = nextNode
+                eventType = START_TAG
                 eventNodeDepth = parentNodesStack.size + 1
             })
 
             if(nextNode?.hasChildNodes() == false){
                 if(nextNode?.nodeType == Node.TEXT_NODE){
-                    eventsStack.add(TEXT to ParserEvent().apply {
+                    eventsStack.add(ParserEvent().apply {
                         eventNode = nextNode
+                        eventType = TEXT
                         eventNodeDepth = parentNodesStack.size + 1
                     })
                 }
-                eventsStack.add(END_TAG to ParserEvent().apply {
+                eventsStack.add(ParserEvent().apply {
                     eventNode = nextNode
+                    eventType = END_TAG
                     eventNodeDepth = parentNodesStack.size + 1
                 })
             }
@@ -57,16 +58,18 @@ class UmXmlPullParser: XmlPullParser {
 
             val currentParentNode = parentNodesStack.last()
             if(currentParentNode.lastChild == nextNode){
-                eventsStack.add(END_TAG to ParserEvent().apply {
+                eventsStack.add(ParserEvent().apply {
                     eventNode = currentParentNode
+                    eventType = END_TAG
                     eventNodeDepth = parentNodesStack.indexOf(currentParentNode) + 1
                 })
                 parentNodesStack.removeLastOrNull()
 
                 if(currentParentNode.parentNode?.nextSibling != null
                     && currentParentNode.parentNode?.lastChild == currentParentNode){
-                    eventsStack.add(END_TAG to ParserEvent().apply {
+                    eventsStack.add(ParserEvent().apply {
                         eventNode = currentParentNode.parentNode
+                        eventType = END_TAG
                         eventNodeDepth = parentNodesStack.indexOf(currentParentNode.parentNode) + 1
                     })
                     parentNodesStack.removeLastOrNull()
@@ -75,100 +78,130 @@ class UmXmlPullParser: XmlPullParser {
         }
 
         while ({ lastParentNode = parentNodesStack.removeLastOrNull(); lastParentNode }() != null){
-            eventsStack.add(END_TAG to ParserEvent().apply {
+            eventsStack.add(ParserEvent().apply {
                 eventNode = lastParentNode
+                eventType = END_TAG
                 eventNodeDepth = parentNodesStack.size + 1
             })
         }
 
-        eventsStack.add(0, START_DOCUMENT to ParserEvent().apply {
+        eventsStack.add(0, ParserEvent().apply {
             eventNode = treeWalker.root
+            eventType = START_DOCUMENT
         })
 
-        eventsStack.add(END_DOCUMENT to ParserEvent().apply {
+        eventsStack.add(ParserEvent().apply {
             eventNode = treeWalker.root
+            eventType = END_DOCUMENT
         })
         eventsStack.reverse()
     }
 
+    private fun getAttributes(): List<Attr>{
+        return getCurrentEventElement()?.attributes?.asList()?: listOf()
+    }
+
+    private fun getCurrentEventElement(event: ParserEvent? = null): Element?{
+        val mElement = event ?: currentEvent
+        mElement?.eventNode?.appendChild(document.createTextNode("text"))
+        return mElement?.eventNode?.lastChild?.parentElement
+    }
+
 
     override fun getDepth(): Int {
-        return currentEvent?.second?.eventNodeDepth ?: -1
+        return currentEvent?.eventNodeDepth ?: -1
     }
 
     override fun isWhitespace(): Boolean {
-        if(currentEvent?.first == TEXT){
+        if(currentEvent?.eventType == TEXT){
             return getText().isNullOrEmpty()
         }
         return false
     }
 
     override fun getText(): String? {
-        return currentEvent?.second?.eventNode?.textContent
+        return currentEvent?.eventNode?.textContent
     }
 
     override fun getNamespace(): String? {
-        TODO("Not yet implemented")
+        return getCurrentEventElement()?.namespaceURI
     }
 
     override fun getNamespace(prefix: String?): String? {
-        TODO("Not yet implemented")
+        return getCurrentEventElement()?.lookupNamespaceURI(prefix)
     }
 
     override fun getName(): String? {
-        return currentEvent?.second?.eventNode?.nodeName
+        return currentEvent?.eventNode?.nodeName
     }
 
     override fun getPrefix(): String? {
-        TODO("Not yet implemented")
+        return currentEvent?.eventNode?.lookupPrefix(null)
     }
 
     override fun getAttributeCount(): Int {
-        TODO("Not yet implemented")
+        val currentNode = currentEvent
+        return if(currentNode != null && currentNode.eventType == START_TAG &&
+            currentNode.eventNode?.nodeType == Node.ELEMENT_NODE){
+            currentNode.eventNode?.appendChild(document.createTextNode("text"))
+            currentNode.eventNode?.lastChild?.parentElement?.attributes?.length ?: -1
+        }else{
+            -1
+        }
     }
 
     override fun getEventType(): Int {
-        TODO("Not yet implemented")
+       return currentEvent?.eventType ?: -1
     }
 
-    override fun getProperty(name: String): Any? {
-        TODO("Not yet implemented")
-    }
 
     override fun getNamespaceCount(depth: Int): Int {
-        TODO("Not yet implemented")
+        val namespaceSet = mutableSetOf<String>()
+        eventsStack.filter { it.eventNodeDepth == depth}.forEach {
+            val namespace = getCurrentEventElement(it)?.namespaceURI
+            if( namespace != null){
+                namespaceSet.add(namespace)
+            }
+        }
+        return namespaceSet.size
     }
 
     override fun getNamespacePrefix(pos: Int): String? {
-        TODO("Not yet implemented")
+        val attributes = getAttributes()
+        return if(attributes.isNotEmpty()) attributes[pos].prefix else null
     }
 
     override fun getNamespaceUri(pos: Int): String? {
-        TODO("Not yet implemented")
+        val attributes = getAttributes()
+        return if(attributes.isNotEmpty()) attributes[pos].namespaceURI else null
     }
 
     override fun getAttributeNamespace(index: Int): String? {
-        TODO("Not yet implemented")
+        val attributes = getAttributes()
+        return if(attributes.isNotEmpty()) attributes[index].localName else null
     }
 
     override fun getAttributeName(index: Int): String? {
-        TODO("Not yet implemented")
+        val attributes = getAttributes()
+        return if(attributes.isNotEmpty()) attributes[index].name else null
     }
 
     override fun getAttributePrefix(index: Int): String? {
-        TODO("Not yet implemented")
+        val attributes = getAttributes()
+        return if(attributes.isNotEmpty()) attributes[index].prefix else null
     }
 
     override fun getAttributeValue(index: Int): String? {
-        TODO("Not yet implemented")
+        val attributes = getAttributes()
+        return if(attributes.isNotEmpty()) attributes[index].value else null
     }
 
     override fun getAttributeValue(namespace: String?, name: String): String? {
-        TODO("Not yet implemented")
+        return getAttributes().first {(it.name == name || it.name.contains(name)) && (it.namespaceURI == null || it.namespaceURI == namespace)}.value
     }
 
     override fun next(): Int {
         currentEvent = eventsStack.removeLastOrNull()
-        return currentEvent?.first ?: -1
+        return currentEvent?.eventType ?: -1
     }
 }

@@ -6,6 +6,7 @@ class ParserEvent {
 
     var eventNodeDepth: Int = -1
 
+    var eventType: Int = -1
 
     companion object {
 

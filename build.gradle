@@ -73,11 +73,11 @@ kotlin {
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     sourceSets.main.manifest.srcFile('src/androidMain/AndroidManifest.xml')
     defaultConfig {
-        applicationId 'org.kmp.xmlpullparser.library'
+        applicationId 'com.ustadmobile.xmlpullparser'
         minSdkVersion 24
-        targetSdkVersion 29
+        targetSdkVersion 30
     }
 }

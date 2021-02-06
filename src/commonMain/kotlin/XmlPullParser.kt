@@ -46,12 +46,6 @@ expect interface XmlPullParser {
      */
     fun getEventType(): Int
 
-
-    /**
-     * Look up the value of a property.
-     * */
-    fun getProperty(name: String): Any?
-
     /**
      * Return position in stack of first namespace slot for element at passed depth.
      * If namespaces are not enabled it returns always 0.
