@@ -2,11 +2,11 @@ import kotlin.test.*
 
 class XmlPullParserTest {
 
-    lateinit var umXmlPullParser: UmXmlPullParser
+    lateinit var umXmlPullParser: UmXmlPullParserKmp
 
     @BeforeTest
     fun settingUp(){
-        umXmlPullParser = UmXmlPullParser()
+        umXmlPullParser = UmXmlPullParserKmp()
     }
 
     @Test

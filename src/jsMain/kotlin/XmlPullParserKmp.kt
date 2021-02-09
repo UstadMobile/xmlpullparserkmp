@@ -2,7 +2,7 @@
  * Interface responsible for defining all the parsing functionality
  *
  */
-actual interface XmlPullParser {
+actual interface XmlPullParserKmp {
     /**
      * Returns the current depth of the element.
      */

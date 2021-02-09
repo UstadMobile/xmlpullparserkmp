@@ -90,7 +90,7 @@ publishing {
     repositories {
         maven {
             name = "XmlPullParserKmp"
-            url = uri("https://github.com/UstadMobile/XmlPullParserKmp")
+            url = uri("https://maven.pkg.github.com/UstadMobile/XmlPullParserKmp")
             credentials {
                 username = localProperties["gpr.user"]
                 password = localProperties["gpr.key"]

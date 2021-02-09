@@ -7,7 +7,7 @@ import kotlinx.browser.document
 import org.w3c.dom.*
 import org.w3c.dom.parsing.DOMParser
 
-class UmXmlPullParser: XmlPullParser {
+class UmXmlPullParserKmp: XmlPullParserKmp {
 
     lateinit var treeWalker: TreeWalker
 
