@@ -91,7 +91,7 @@ class XmlPullParserTest {
 
 
     @Test
-    fun givenALinkTagStartedEventIsEmitted_whenReadingADocument_ShouldHrefAttributeValue(){
+    fun givenALinkTagStartedEventIsEmitted_whenReadingADocument_ShouldHaveHrefAttributeValue(){
         umXmlPullParser.setInput(XHTML_CONTENT)
         for (i in 1..29) umXmlPullParser.next()
         assertEquals(ParserEvent.START_TAG,umXmlPullParser.getEventType())

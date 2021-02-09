@@ -22,8 +22,7 @@ class UmXmlPullParser: XmlPullParser {
     private var lastParentNode: Node? = null
 
     override fun setInput(content: String) {
-        val domParser = DOMParser()
-        treeWalker = document.createTreeWalker(domParser.parseFromString(content,
+        treeWalker = document.createTreeWalker(DOMParser().parseFromString(content,
             "text/${if(content.startsWith("<?xml")) "xml" else "html"}"),
             NodeFilter.SHOW_ALL) { NodeFilter.FILTER_ACCEPT }
         logParserEvents()
@@ -120,7 +119,9 @@ class UmXmlPullParser: XmlPullParser {
     }
 
     override fun getText(): String? {
-        return currentEvent?.eventNode?.textContent
+        return if(currentEvent?.eventNode?.nodeType == Node.TEXT_NODE){
+            currentEvent?.eventNode?.textContent
+        }else null
     }
 
     override fun getNamespace(): String? {
@@ -143,8 +144,7 @@ class UmXmlPullParser: XmlPullParser {
         val currentNode = currentEvent
         return if(currentNode != null && currentNode.eventType == START_TAG &&
             currentNode.eventNode?.nodeType == Node.ELEMENT_NODE){
-            currentNode.eventNode?.appendChild(document.createTextNode("text"))
-            currentNode.eventNode?.lastChild?.parentElement?.attributes?.length ?: -1
+            getAttributes().size
         }else{
             -1
         }
@@ -159,7 +159,7 @@ class UmXmlPullParser: XmlPullParser {
         val namespaceSet = mutableSetOf<String>()
         eventsStack.filter { it.eventNodeDepth == depth}.forEach {
             val namespace = getCurrentEventElement(it)?.namespaceURI
-            if( namespace != null){
+            if(namespace != null){
                 namespaceSet.add(namespace)
             }
         }
@@ -177,8 +177,7 @@ class UmXmlPullParser: XmlPullParser {
     }
 
     override fun getAttributeNamespace(index: Int): String? {
-        val attributes = getAttributes()
-        return if(attributes.isNotEmpty()) attributes[index].localName else null
+        return getNamespaceUri(index)
     }
 
     override fun getAttributeName(index: Int): String? {
@@ -197,7 +196,8 @@ class UmXmlPullParser: XmlPullParser {
     }
 
     override fun getAttributeValue(namespace: String?, name: String): String? {
-        return getAttributes().first {(it.name == name || it.name.contains(name)) && (it.namespaceURI == null || it.namespaceURI == namespace)}.value
+        return getAttributes().first {(it.name == name || it.name.contains(name))
+                && (it.namespaceURI == null || it.namespaceURI == namespace)}.value
     }
 
     override fun next(): Int {
