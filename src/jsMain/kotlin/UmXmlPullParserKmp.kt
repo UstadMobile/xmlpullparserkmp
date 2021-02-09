@@ -9,7 +9,7 @@ import org.w3c.dom.parsing.DOMParser
 
 class UmXmlPullParserKmp: XmlPullParserKmp {
 
-    lateinit var treeWalker: TreeWalker
+    private lateinit var treeWalker: TreeWalker
 
     private val eventsStack = mutableListOf<ParserEvent>()
 
