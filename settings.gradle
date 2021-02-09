@@ -13,5 +13,5 @@ pluginManagement {
         }
     }
 }
-rootProject.name = 'XmlPullParserKmp'
+rootProject.name = 'xmlpullparserkmp'
 
