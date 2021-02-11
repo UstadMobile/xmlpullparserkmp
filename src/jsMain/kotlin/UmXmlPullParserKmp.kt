@@ -1,8 +1,9 @@
-import ParserEvent.Companion.END_DOCUMENT
-import ParserEvent.Companion.END_TAG
-import ParserEvent.Companion.START_DOCUMENT
-import ParserEvent.Companion.START_TAG
-import ParserEvent.Companion.TEXT
+
+import XmlPullParserKmp.Companion.END_DOCUMENT
+import XmlPullParserKmp.Companion.END_TAG
+import XmlPullParserKmp.Companion.START_DOCUMENT
+import XmlPullParserKmp.Companion.START_TAG
+import XmlPullParserKmp.Companion.TEXT
 import kotlinx.browser.document
 import org.w3c.dom.*
 import org.w3c.dom.parsing.DOMParser
@@ -21,11 +22,24 @@ class UmXmlPullParserKmp: XmlPullParserKmp {
 
     private var lastParentNode: Node? = null
 
+    private var processNsp:Boolean = false
+
+    private var relaxed: Boolean = true
+
     override fun setInput(content: String) {
         treeWalker = document.createTreeWalker(DOMParser().parseFromString(content,
             "text/${if(content.startsWith("<?xml")) "xml" else "html"}"),
             NodeFilter.SHOW_ALL) { NodeFilter.FILTER_ACCEPT }
         logParserEvents()
+    }
+
+    private fun isProp(ns1: String, prop: Boolean, ns2: String): Boolean {
+        if (!ns1.startsWith("http://xmlpull.org/v1/doc/"))
+            return false
+        return if (prop)
+            ns1.substring(42) == ns2
+        else
+            ns1.substring(40) == ns2
     }
 
     private fun logParserEvents(){
@@ -106,6 +120,15 @@ class UmXmlPullParserKmp: XmlPullParserKmp {
         return mElement?.eventNode?.lastChild?.parentElement
     }
 
+    private fun isStartOrEndTag():Boolean{
+        return  (currentEvent?.eventType == START_TAG
+                || currentEvent?.eventType == END_TAG)
+    }
+
+    private fun isNsEnabledAndStartOrEndTag(): Boolean {
+        return processNsp && isStartOrEndTag()
+    }
+
 
     override fun getDepth(): Int {
         return currentEvent?.eventNodeDepth ?: -1
@@ -125,11 +148,13 @@ class UmXmlPullParserKmp: XmlPullParserKmp {
     }
 
     override fun getNamespace(): String? {
-        return getCurrentEventElement()?.namespaceURI
+        return  if(isNsEnabledAndStartOrEndTag())
+                getCurrentEventElement()?.namespaceURI
+        else if (!processNsp) ""  else null
     }
 
     override fun getNamespace(prefix: String?): String? {
-        return getCurrentEventElement()?.lookupNamespaceURI(prefix)
+        return  getCurrentEventElement()?.lookupNamespaceURI(prefix)
     }
 
     override fun getName(): String? {
@@ -137,7 +162,8 @@ class UmXmlPullParserKmp: XmlPullParserKmp {
     }
 
     override fun getPrefix(): String? {
-        return currentEvent?.eventNode?.lookupPrefix(null)
+        return if(isNsEnabledAndStartOrEndTag())
+            currentEvent?.eventNode?.lookupPrefix(null) else null
     }
 
     override fun getAttributeCount(): Int {
@@ -145,13 +171,27 @@ class UmXmlPullParserKmp: XmlPullParserKmp {
         return if(currentNode != null && currentNode.eventType == START_TAG &&
             currentNode.eventNode?.nodeType == Node.ELEMENT_NODE){
             getAttributes().size
-        }else{
-            -1
-        }
+        } else  -1
     }
 
     override fun getEventType(): Int {
        return currentEvent?.eventType ?: -1
+    }
+
+    override fun setFeature(name: String, state: Boolean) {
+        when {
+            XmlPullParserKmp.FEATURE_PROCESS_NAMESPACES == name -> processNsp = state
+            isProp(name, false, "relaxed") -> relaxed = state
+            else -> throw Exception("unsupported feature: $name")
+        }
+    }
+
+    override fun getFeature(name: String): Boolean {
+        return when {
+            XmlPullParserKmp.FEATURE_PROCESS_NAMESPACES == name -> processNsp
+            isProp(name, false, "relaxed") -> relaxed
+            else -> false
+        }
     }
 
 
@@ -163,7 +203,7 @@ class UmXmlPullParserKmp: XmlPullParserKmp {
                 namespaceSet.add(namespace)
             }
         }
-        return namespaceSet.size
+        return if(processNsp) namespaceSet.size else 0
     }
 
     override fun getNamespacePrefix(pos: Int): String? {
@@ -177,27 +217,38 @@ class UmXmlPullParserKmp: XmlPullParserKmp {
     }
 
     override fun getAttributeNamespace(index: Int): String? {
-        return getNamespaceUri(index)
+        val ns = getNamespaceUri(index)
+        return if(!processNsp || ns == null) "" else if(currentEvent?.eventType != START_TAG)
+            throw IndexOutOfBoundsException() else ns
     }
 
     override fun getAttributeName(index: Int): String? {
         val attributes = getAttributes()
-        return if(attributes.isNotEmpty()) attributes[index].name else null
+        return if(currentEvent?.eventType != START_TAG) throw IndexOutOfBoundsException()
+        else if(attributes.isNotEmpty())
+            if(processNsp) attributes[index].name else attributes[index].localName
+        else null
     }
 
     override fun getAttributePrefix(index: Int): String? {
         val attributes = getAttributes()
-        return if(attributes.isNotEmpty()) attributes[index].prefix else null
+        return if(currentEvent?.eventType != START_TAG) throw IndexOutOfBoundsException()
+        else if(attributes.isNotEmpty() && processNsp) attributes[index].prefix else null
     }
 
     override fun getAttributeValue(index: Int): String? {
         val attributes = getAttributes()
-        return if(attributes.isNotEmpty()) attributes[index].value else null
+        return if(currentEvent?.eventType != START_TAG) throw IndexOutOfBoundsException()
+        else if(attributes.isNotEmpty()) attributes[index].value else null
     }
 
     override fun getAttributeValue(namespace: String?, name: String): String? {
-        return getAttributes().first {(it.name == name || it.name.contains(name))
-                && (it.namespaceURI == null || it.namespaceURI == namespace)}.value
+        return when {
+            currentEvent?.eventType != START_TAG -> throw IndexOutOfBoundsException()
+            processNsp -> getAttributes().first {(it.name == name || it.name.contains(name))
+                    && (it.namespaceURI == null || it.namespaceURI == namespace)}.value
+            else -> null
+        }
     }
 
     override fun next(): Int {

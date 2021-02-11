@@ -47,6 +47,16 @@ expect interface XmlPullParserKmp {
     fun getEventType(): Int
 
     /**
+     * Use this call to change the general behaviour of the parser, such as namespace processing
+     */
+    fun setFeature(name: String, state: Boolean)
+
+    /**
+     * Return the current value of the feature with given name.
+     */
+    fun getFeature(name: String): Boolean
+
+    /**
      * Return position in stack of first namespace slot for element at passed depth.
      * If namespaces are not enabled it returns always 0.
      */

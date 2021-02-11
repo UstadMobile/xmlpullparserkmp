@@ -1,3 +1,7 @@
+import XmlPullParserKmp.Companion.FEATURE_PROCESS_NAMESPACES
+import XmlPullParserKmp.Companion.START_DOCUMENT
+import XmlPullParserKmp.Companion.START_TAG
+import XmlPullParserKmp.Companion.TEXT
 import kotlin.test.*
 
 class XmlPullParserTest {
@@ -7,18 +11,19 @@ class XmlPullParserTest {
     @BeforeTest
     fun settingUp(){
         umXmlPullParser = UmXmlPullParserKmp()
+        umXmlPullParser.setFeature(FEATURE_PROCESS_NAMESPACES, true)
     }
 
     @Test
     fun givenParsedXmlContent_whenFirstNextIsCalled_ShouldBeDocumentRead(){
         umXmlPullParser.setInput(XML_CONTENT)
-        assertEquals(ParserEvent.START_DOCUMENT,umXmlPullParser.next())
+        assertEquals(START_DOCUMENT,umXmlPullParser.next())
     }
 
     @Test
     fun givenParsedXhtmlContent_whenFirstNextIsCalled_ShouldBeDocumentRead(){
         umXmlPullParser.setInput(XHTML_CONTENT)
-        assertEquals(ParserEvent.START_DOCUMENT,umXmlPullParser.next())
+        assertEquals(START_DOCUMENT,umXmlPullParser.next())
     }
 
     @Test
@@ -26,7 +31,7 @@ class XmlPullParserTest {
         umXmlPullParser.setInput(XML_CONTENT)
         //read document
         umXmlPullParser.next()
-        assertEquals(ParserEvent.START_TAG,umXmlPullParser.next())
+        assertEquals(START_TAG,umXmlPullParser.next())
     }
 
     @Test
@@ -34,14 +39,14 @@ class XmlPullParserTest {
         umXmlPullParser.setInput(XHTML_CONTENT)
         //read document
         umXmlPullParser.next()
-        assertEquals(ParserEvent.START_TAG,umXmlPullParser.next())
+        assertEquals(START_TAG,umXmlPullParser.next())
     }
 
     @Test
     fun givenMetadataTagStartedEventIsEmitted_whenReadingADocument_ShouldHaveNodeName(){
         umXmlPullParser.setInput(XML_CONTENT)
         for (i in 1..6) umXmlPullParser.next()
-        assertEquals(ParserEvent.START_TAG,umXmlPullParser.getEventType())
+        assertEquals(START_TAG,umXmlPullParser.getEventType())
         assertSame("metadata", umXmlPullParser.getName())
     }
 
@@ -50,7 +55,7 @@ class XmlPullParserTest {
     fun givenTextTagStartedEventIsEmitted_whenReadingADocument_ShouldBeAbleToGetTextContent(){
         umXmlPullParser.setInput(XML_CONTENT)
         for (i in 1..12) umXmlPullParser.next()
-        assertEquals(ParserEvent.TEXT,umXmlPullParser.getEventType())
+        assertEquals(TEXT,umXmlPullParser.getEventType())
         assertSame("Creative Commons - A Shared Culture", umXmlPullParser.getText())
     }
 
@@ -58,16 +63,26 @@ class XmlPullParserTest {
     fun givenMetadataTagStartedEventIsEmitted_whenLookingUpNamespaceByPrefix_ShouldHaveAtLeastOne(){
         umXmlPullParser.setInput(XML_CONTENT)
         for (i in 1..6) umXmlPullParser.next()
-        assertEquals(ParserEvent.START_TAG,umXmlPullParser.getEventType())
+        assertEquals(START_TAG,umXmlPullParser.getEventType())
         val namespace = umXmlPullParser.getNamespace("dc")
         assertTrue(namespace?.startsWith("http")?:false && namespace?.contains("dc")?:false)
+    }
+
+    @Test
+    fun givenNamespaceProcessingIsDisabled_whenLookingUpNamespace_ShouldProvideEmptyNamespace(){
+        umXmlPullParser.setFeature(FEATURE_PROCESS_NAMESPACES, false)
+        umXmlPullParser.setInput(XML_CONTENT)
+        for (i in 1..6) umXmlPullParser.next()
+        assertEquals(START_TAG,umXmlPullParser.getEventType())
+        val namespace = umXmlPullParser.getNamespace()
+        namespace?.isEmpty()?.let { assertTrue(it) }
     }
 
     @Test
     fun givenMetadataTagStartedEventIsEmitted_whenReadingADocument_ShouldHaveAttributes(){
         umXmlPullParser.setInput(XML_CONTENT)
         for (i in 1..6) umXmlPullParser.next()
-        assertEquals(ParserEvent.START_TAG,umXmlPullParser.getEventType())
+        assertEquals(START_TAG,umXmlPullParser.getEventType())
         assertTrue(umXmlPullParser.getAttributeCount() > 0)
     }
 
@@ -76,7 +91,7 @@ class XmlPullParserTest {
     fun givenMetadataTagStartedEventIsEmitted_whenReadingADocument_ShouldHaveNameSpace(){
         umXmlPullParser.setInput(XML_CONTENT)
         for (i in 1..6) umXmlPullParser.next()
-        assertEquals(ParserEvent.START_TAG,umXmlPullParser.getEventType())
+        assertEquals(START_TAG,umXmlPullParser.getEventType())
         assertSame(NAMESPACE_OPF,umXmlPullParser.getNamespace())
     }
 
@@ -84,7 +99,7 @@ class XmlPullParserTest {
     fun givenNavTagStartedEventIsEmitted_whenReadingADocument_ShouldHaveBothTocAndIDAttributeValues(){
         umXmlPullParser.setInput(XHTML_CONTENT)
         for (i in 1..20) umXmlPullParser.next()
-        assertEquals(ParserEvent.START_TAG,umXmlPullParser.getEventType())
+        assertEquals(START_TAG,umXmlPullParser.getEventType())
         assertSame("toc",umXmlPullParser.getAttributeValue(NAMESPACE_OPS, "type"))
         assertSame("toc",umXmlPullParser.getAttributeValue(NAMESPACE_OPS, "id"))
     }
@@ -94,7 +109,7 @@ class XmlPullParserTest {
     fun givenALinkTagStartedEventIsEmitted_whenReadingADocument_ShouldHaveHrefAttributeValue(){
         umXmlPullParser.setInput(XHTML_CONTENT)
         for (i in 1..29) umXmlPullParser.next()
-        assertEquals(ParserEvent.START_TAG,umXmlPullParser.getEventType())
+        assertEquals(START_TAG,umXmlPullParser.getEventType())
         assertTrue(umXmlPullParser.getAttributeValue(null,"href")?.indexOf(".xhtml") != -1)
     }
 
