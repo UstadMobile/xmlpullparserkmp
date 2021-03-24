@@ -110,4 +110,6 @@ expect interface XmlPullParser {
      * Net next parsing event
      */
     operator fun next(): Int
+
+    fun nextText(): String?
 }

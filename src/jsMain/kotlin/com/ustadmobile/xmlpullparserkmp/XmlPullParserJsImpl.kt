@@ -257,4 +257,26 @@ class XmlPullParserJsImpl: XmlPullParser {
         currentEvent = eventsStack.removeLastOrNull()
         return currentEvent?.eventType ?: -1
     }
+
+
+    override fun nextText(): String? {
+        //Implemented in accordance with the original kXML
+        if(currentEvent?.eventType != START_TAG)
+            throw XmlPullParserException("nextText: precondition: current event must be start_tag")
+
+        next()
+
+        val result: String?
+        if(currentEvent?.eventType == TEXT) {
+            result = getText()
+            next()
+        }else {
+            result = ""
+        }
+
+        if(currentEvent?.eventType != END_TAG)
+            throw XmlPullParserException("nextText: END_TAG expected")
+
+        return result
+    }
 }

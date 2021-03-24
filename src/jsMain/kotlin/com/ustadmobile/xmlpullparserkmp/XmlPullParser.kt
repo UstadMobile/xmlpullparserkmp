@@ -109,6 +109,8 @@ actual interface XmlPullParser {
      */
     actual operator fun next(): Int
 
+    actual fun nextText(): String?
+
     /**
      * Set source content to be parsed
      */
