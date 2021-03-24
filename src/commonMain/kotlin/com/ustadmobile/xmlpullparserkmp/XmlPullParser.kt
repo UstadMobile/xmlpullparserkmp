@@ -4,7 +4,7 @@ package com.ustadmobile.xmlpullparserkmp
  * Interface responsible for defining all the parsing functionality
  *
  */
-expect interface XmlPullParserKmp {
+expect interface XmlPullParser {
 
     /**
      * Returns the current depth of the element.

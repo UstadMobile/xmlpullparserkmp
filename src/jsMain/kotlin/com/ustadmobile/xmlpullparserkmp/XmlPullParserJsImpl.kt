@@ -1,15 +1,15 @@
 package com.ustadmobile.xmlpullparserkmp
 
-import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.END_DOCUMENT
-import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.END_TAG
-import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.START_DOCUMENT
-import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.START_TAG
-import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.TEXT
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.END_DOCUMENT
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.END_TAG
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.START_DOCUMENT
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.START_TAG
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.TEXT
 import kotlinx.browser.document
 import org.w3c.dom.*
 import org.w3c.dom.parsing.DOMParser
 
-class UmXmlPullParserKmp: XmlPullParserKmp {
+class XmlPullParserJsImpl: XmlPullParser {
 
     private lateinit var treeWalker: TreeWalker
 
@@ -181,7 +181,7 @@ class UmXmlPullParserKmp: XmlPullParserKmp {
 
     override fun setFeature(name: String, state: Boolean) {
         when {
-            XmlPullParserKmp.FEATURE_PROCESS_NAMESPACES == name -> processNsp = state
+            XmlPullParserConstants.FEATURE_PROCESS_NAMESPACES == name -> processNsp = state
             isProp(name, false, "relaxed") -> relaxed = state
             else -> throw Exception("unsupported feature: $name")
         }
@@ -189,7 +189,7 @@ class UmXmlPullParserKmp: XmlPullParserKmp {
 
     override fun getFeature(name: String): Boolean {
         return when {
-            XmlPullParserKmp.FEATURE_PROCESS_NAMESPACES == name -> processNsp
+            XmlPullParserConstants.FEATURE_PROCESS_NAMESPACES == name -> processNsp
             isProp(name, false, "relaxed") -> relaxed
             else -> false
         }

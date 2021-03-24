@@ -1,18 +1,18 @@
 package com.ustadmobile.xmlpullparserkmp
 
-import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.FEATURE_PROCESS_NAMESPACES
-import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.START_DOCUMENT
-import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.START_TAG
-import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.TEXT
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.FEATURE_PROCESS_NAMESPACES
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.START_DOCUMENT
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.START_TAG
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.TEXT
 import kotlin.test.*
 
-class XmlPullParserTest {
+class XmlPullParserJsImplTest {
 
-    lateinit var umXmlPullParser: UmXmlPullParserKmp
+    lateinit var umXmlPullParser: XmlPullParserJsImpl
 
     @BeforeTest
     fun settingUp(){
-        umXmlPullParser = UmXmlPullParserKmp()
+        umXmlPullParser = XmlPullParserJsImpl()
         umXmlPullParser.setFeature(FEATURE_PROCESS_NAMESPACES, true)
     }
 
