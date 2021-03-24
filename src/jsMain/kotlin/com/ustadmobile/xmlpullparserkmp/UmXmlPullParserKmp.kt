@@ -1,9 +1,10 @@
+package com.ustadmobile.xmlpullparserkmp
 
-import XmlPullParserKmp.Companion.END_DOCUMENT
-import XmlPullParserKmp.Companion.END_TAG
-import XmlPullParserKmp.Companion.START_DOCUMENT
-import XmlPullParserKmp.Companion.START_TAG
-import XmlPullParserKmp.Companion.TEXT
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.END_DOCUMENT
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.END_TAG
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.START_DOCUMENT
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.START_TAG
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.TEXT
 import kotlinx.browser.document
 import org.w3c.dom.*
 import org.w3c.dom.parsing.DOMParser
@@ -216,6 +217,7 @@ class UmXmlPullParserKmp: XmlPullParserKmp {
         return if(attributes.isNotEmpty()) attributes[pos].namespaceURI else null
     }
 
+    @Suppress("RedundantNullableReturnType")
     override fun getAttributeNamespace(index: Int): String? {
         val ns = getNamespaceUri(index)
         return if(!processNsp || ns == null) "" else if(currentEvent?.eventType != START_TAG)

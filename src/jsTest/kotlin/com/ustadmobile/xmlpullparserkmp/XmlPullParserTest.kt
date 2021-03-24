@@ -1,7 +1,9 @@
-import XmlPullParserKmp.Companion.FEATURE_PROCESS_NAMESPACES
-import XmlPullParserKmp.Companion.START_DOCUMENT
-import XmlPullParserKmp.Companion.START_TAG
-import XmlPullParserKmp.Companion.TEXT
+package com.ustadmobile.xmlpullparserkmp
+
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.FEATURE_PROCESS_NAMESPACES
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.START_DOCUMENT
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.START_TAG
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserKmp.Companion.TEXT
 import kotlin.test.*
 
 class XmlPullParserTest {

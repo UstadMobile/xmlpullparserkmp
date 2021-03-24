@@ -1,17 +1,20 @@
 plugins {
-    id 'org.jetbrains.kotlin.multiplatform' version '1.4.10'
+    id 'org.jetbrains.kotlin.multiplatform' version '1.4.31'
     id 'kotlin-android-extensions'
     id 'com.android.library'
     id 'maven-publish'
 }
 
-group = 'com.ustadmobile'
-version = '0.0.3'
+group = 'com.ustadmobile.xmlpullparserkmp'
+version = '0.0.4'
 def localProperties = new Properties()
-localProperties.load(new FileInputStream(project.file("local.properties")))
+if(project.file("local.properties").exists()) {
+    localProperties.load(new FileInputStream(project.file("local.properties")))
+}
 
 repositories {
     google()
+    jcenter()
     mavenCentral()
 }
 
@@ -34,7 +37,11 @@ kotlin {
             }
         }
     }
-    android()
+
+    android {
+        publishLibraryVariants("release", "debug")
+    }
+
     sourceSets {
         commonMain {
 
@@ -65,7 +72,7 @@ kotlin {
         }
         androidMain {
             dependencies {
-                implementation "com.google.android.material:material:1.2.0"
+
             }
         }
         androidTest {
@@ -89,7 +96,7 @@ android {
 publishing {
     repositories {
         maven {
-            name = "XmlPullParserKmp"
+            name = "xmlpullparserkmp"
             url = uri("https://maven.pkg.github.com/UstadMobile/XmlPullParserKmp")
             credentials {
                 username = localProperties["gpr.user"]

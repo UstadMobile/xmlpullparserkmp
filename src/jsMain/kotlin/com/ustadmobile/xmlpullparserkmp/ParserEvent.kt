@@ -1,3 +1,5 @@
+package com.ustadmobile.xmlpullparserkmp
+
 import org.w3c.dom.Node
 
 open class ParserEvent {
