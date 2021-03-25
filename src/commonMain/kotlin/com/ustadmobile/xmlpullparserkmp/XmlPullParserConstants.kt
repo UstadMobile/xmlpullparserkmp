@@ -35,5 +35,7 @@ object XmlPullParserConstants {
 
     const val DOCDECL = 10
 
+    const val ENTITY_REF = 6
+
     val FEATURE_PROCESS_NAMESPACES = "http://xmlpull.org/v1/doc/features.html#process-namespaces"
 }

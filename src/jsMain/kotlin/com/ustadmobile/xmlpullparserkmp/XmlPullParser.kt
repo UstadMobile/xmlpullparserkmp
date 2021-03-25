@@ -116,4 +116,6 @@ actual interface XmlPullParser {
      */
     fun setInput(content: String)
 
+    actual fun nextToken(): Int
+
 }

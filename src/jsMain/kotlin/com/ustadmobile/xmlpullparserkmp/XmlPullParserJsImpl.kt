@@ -258,6 +258,7 @@ class XmlPullParserJsImpl: XmlPullParser {
         return currentEvent?.eventType ?: -1
     }
 
+    override fun nextToken(): Int = next()
 
     override fun nextText(): String? {
         //Implemented in accordance with the original kXML

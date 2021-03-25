@@ -2,6 +2,8 @@ package com.ustadmobile.xmlpullparserkmp
 
 expect interface XmlSerializer {
 
+    fun docdecl(dd: String)
+
     fun startDocument (encoding: String, standalone: Boolean)
 
     fun setPrefix(prefix: String, namespace: String)
@@ -13,6 +15,8 @@ expect interface XmlSerializer {
     fun attribute(namespace: String?, name: String, value: String): XmlSerializer
 
     fun text(text: String): XmlSerializer
+
+    fun entityRef(text: String)
 
     fun endTag(namespace: String?, name: String): XmlSerializer
 
