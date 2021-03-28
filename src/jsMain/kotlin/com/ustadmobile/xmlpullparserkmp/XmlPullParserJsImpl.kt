@@ -260,6 +260,18 @@ class XmlPullParserJsImpl: XmlPullParser {
 
     override fun nextToken(): Int = next()
 
+    override fun nextTag(): Int {
+        next()
+
+        if(currentEvent?.eventType == TEXT && currentEvent?.eventNode?.textContent?.isBlank() == true)
+            next()
+
+        if(currentEvent?.let { it.eventType == START_TAG || it.eventType == END_TAG } != true)
+            throw XmlPullParserException("nextTag: expected START_TAG or END_TAG")
+
+        return currentEvent?.eventType ?: -1
+    }
+
     override fun nextText(): String? {
         //Implemented in accordance with the original kXML
         if(currentEvent?.eventType != START_TAG)

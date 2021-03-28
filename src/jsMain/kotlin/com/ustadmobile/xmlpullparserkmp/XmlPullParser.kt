@@ -118,4 +118,6 @@ actual interface XmlPullParser {
 
     actual fun nextToken(): Int
 
+    actual fun nextTag(): Int
+
 }
