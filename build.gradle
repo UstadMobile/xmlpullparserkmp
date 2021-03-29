@@ -107,13 +107,9 @@ android {
 
 publishing {
     repositories {
+        //Set this in local.properties
         maven {
-            name = "xmlpullparserkmp"
-            url = uri("https://maven.pkg.github.com/UstadMobile/XmlPullParserKmp")
-            credentials {
-                username = localProperties["gpr.user"]
-                password = localProperties["gpr.key"]
-            }
+            url localProperties["repo.dir"]
         }
     }
 }
