@@ -31,7 +31,7 @@ kotlin {
         browser {
             testTask {
                 useKarma {
-                    useChrome()
+                    useChromeHeadless() //change to useChrome to run the actual browser
                     webpackConfig.cssSupport.enabled = true
                 }
             }
@@ -107,6 +107,7 @@ android {
 
 publishing {
     repositories {
+        //Set this in local.properties
         maven {
             url localProperties["repo.dir"]
         }
