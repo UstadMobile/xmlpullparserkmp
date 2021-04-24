@@ -45,6 +45,13 @@ class XmlPullParserJsImpl: XmlPullParser {
 
     private fun logParserEvents(){
         while ({ nextNode = treeWalker.nextNode(); nextNode }() != null){
+            if(nextNode?.nodeType == Node.TEXT_NODE){
+                eventsStack.add(ParserEvent().apply {
+                    eventNode = nextNode
+                    eventType = TEXT
+                    eventNodeDepth = parentNodesStack.size + 1
+                })
+            }
             eventsStack.add(ParserEvent().apply {
                 eventNode = nextNode
                 eventType = START_TAG
@@ -52,13 +59,6 @@ class XmlPullParserJsImpl: XmlPullParser {
             })
 
             if(nextNode?.hasChildNodes() == false){
-                if(nextNode?.nodeType == Node.TEXT_NODE){
-                    eventsStack.add(ParserEvent().apply {
-                        eventNode = nextNode
-                        eventType = TEXT
-                        eventNodeDepth = parentNodesStack.size + 1
-                    })
-                }
                 eventsStack.add(ParserEvent().apply {
                     eventNode = nextNode
                     eventType = END_TAG
@@ -145,7 +145,7 @@ class XmlPullParserJsImpl: XmlPullParser {
     override fun getText(): String? {
         return if(currentEvent?.eventNode?.nodeType == Node.TEXT_NODE){
             currentEvent?.eventNode?.textContent
-        }else null
+        } else null
     }
 
     override fun getNamespace(): String? {
@@ -159,7 +159,7 @@ class XmlPullParserJsImpl: XmlPullParser {
     }
 
     override fun getName(): String? {
-        return currentEvent?.eventNode?.nodeName
+        return currentEvent?.eventNode?.nodeName?.toLowerCase()
     }
 
     override fun getPrefix(): String? {

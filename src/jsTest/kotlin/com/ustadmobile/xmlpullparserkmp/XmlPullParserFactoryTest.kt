@@ -8,11 +8,11 @@ import kotlin.test.*
 
 class XmlPullParserJsImplTest {
 
-    lateinit var umXmlPullParser: XmlPullParserJsImpl
+    lateinit var umXmlPullParser: XmlPullParser
 
     @BeforeTest
     fun settingUp(){
-        umXmlPullParser = XmlPullParserJsImpl()
+        umXmlPullParser = XmlPullParserFactory.newInstance().newPullParser()
         umXmlPullParser.setFeature(FEATURE_PROCESS_NAMESPACES, true)
     }
 
@@ -115,6 +115,59 @@ class XmlPullParserJsImplTest {
         assertTrue(umXmlPullParser.getAttributeValue(null,"href")?.indexOf(".xhtml") != -1)
     }
 
+    @Test
+    fun givenTinCanFile_whenReadingIt_ShouldBeParsed(){
+        umXmlPullParser.setInput(TINCAN_XML)
+        val mutableMap = mutableMapOf<Any,Any?>()
+        val mutableList = mutableListOf<Any>()
+        var inExtensions = false
+        var tagName: String
+        var extKey: String
+        var extVal: String
+        var evtType = umXmlPullParser.getEventType()
+        do{
+            if (evtType == START_TAG && umXmlPullParser.getName() != null) {
+                tagName = umXmlPullParser.getName()!!
+                if (!inExtensions) {
+                    if (tagName == "activity") {
+                        mutableList.add(tagName)
+                        mutableMap["activity"] = listOf(umXmlPullParser.getAttributeValue(null, "id")!!,
+                            umXmlPullParser.getAttributeValue(null, "type")!!)
+                    } else if (tagName == "launch" && umXmlPullParser.next() == TEXT) {
+                        mutableMap["url"] = umXmlPullParser.getText()
+                    } else if (tagName == "name" && umXmlPullParser.next() == TEXT) {
+                        mutableMap["name"] = umXmlPullParser.getText()
+                    } else if (tagName == "description" && umXmlPullParser.next() == TEXT) {
+                        mutableMap["desc"] = umXmlPullParser.getText()
+                    } else if (umXmlPullParser.getName() == "extensions") {
+                        inExtensions = true
+                    }
+                } else {
+                    if (tagName == "extension") {
+                        extKey = umXmlPullParser.getAttributeValue(null, "key")!!
+                        extVal = if (umXmlPullParser.next() == TEXT) {
+                            umXmlPullParser.getText()?: ""
+                        } else {
+                            ""
+                        }
+                        mutableMap["extension${extKey}"] = extVal
+                    }
+                }
+            } else if (evtType == XmlPullParserConstants.END_TAG) {
+                if (umXmlPullParser.getName() != null) {
+                    if (umXmlPullParser.getName() == "activity") {
+                        mutableMap["end"] = true
+                    } else if (umXmlPullParser.getName() == "extensions") {
+                        inExtensions = false
+                    }
+                }
+            }
+            evtType = umXmlPullParser.next()
+        } while (evtType != XmlPullParserConstants.END_DOCUMENT)
+
+        assertEquals(mutableListOf(),mutableList)
+    }
+
 
 
 
@@ -165,6 +218,16 @@ class XmlPullParserJsImplTest {
                 "</nav>\n" +
                 "</body>\n" +
                 "</html>"
+
+        const val TINCAN_XML = "<tincan xmlns=\"http://projecttincan.com/tincan.xsd\">\n" +
+                "<activities>\n" +
+                "<activity id=\"http://192.168.31.22:8087/177892100433350656/3196e3e6-6f56-457c-95ef-882b734ac96d\" type=\"http://adlnet.gov/expapi/activities/module\">\n" +
+                "<name>True/False Question</name>\n" +
+                "<description lang=\"en-US\"/>\n" +
+                "<launch lang=\"en-us\">index.html</launch>\n" +
+                "</activity>\n" +
+                "</activities>\n" +
+                "</tincan>"
     }
 
 }
