@@ -6,7 +6,7 @@ import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.START_TAG
 import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.TEXT
 import kotlin.test.*
 
-class XmlPullParserJsImplTest {
+class XmlPullParserFactoryTest {
 
     lateinit var umXmlPullParser: XmlPullParser
 
@@ -56,7 +56,7 @@ class XmlPullParserJsImplTest {
     @Test
     fun givenTextTagStartedEventIsEmitted_whenReadingADocument_ShouldBeAbleToGetTextContent(){
         umXmlPullParser.setInput(XML_CONTENT)
-        for (i in 1..12) umXmlPullParser.next()
+        for (i in 1..11) umXmlPullParser.next()
         assertEquals(TEXT,umXmlPullParser.getEventType())
         assertSame("Creative Commons - A Shared Culture", umXmlPullParser.getText())
     }
@@ -116,29 +116,28 @@ class XmlPullParserJsImplTest {
     }
 
     @Test
-    fun givenTinCanFile_whenReadingIt_ShouldBeParsed(){
+    fun givenTinCanFile_whenReadingIt_ShouldHaveDocumentName(){
         umXmlPullParser.setInput(TINCAN_XML)
-        val mutableMap = mutableMapOf<Any,Any?>()
-        val mutableList = mutableListOf<Any>()
+        val mutableMap = mutableMapOf<Any?,Any?>()
         var inExtensions = false
-        var tagName: String
+        var tagName = ""
         var extKey: String
         var extVal: String
         var evtType = umXmlPullParser.getEventType()
         do{
+            var tagValue:Any? = Any()
             if (evtType == START_TAG && umXmlPullParser.getName() != null) {
                 tagName = umXmlPullParser.getName()!!
                 if (!inExtensions) {
                     if (tagName == "activity") {
-                        mutableList.add(tagName)
-                        mutableMap["activity"] = listOf(umXmlPullParser.getAttributeValue(null, "id")!!,
+                        tagValue = listOf(umXmlPullParser.getAttributeValue(null, "id")!!,
                             umXmlPullParser.getAttributeValue(null, "type")!!)
                     } else if (tagName == "launch" && umXmlPullParser.next() == TEXT) {
-                        mutableMap["url"] = umXmlPullParser.getText()
+                        tagValue = umXmlPullParser.getText()
                     } else if (tagName == "name" && umXmlPullParser.next() == TEXT) {
-                        mutableMap["name"] = umXmlPullParser.getText()
+                        tagValue = umXmlPullParser.getText()
                     } else if (tagName == "description" && umXmlPullParser.next() == TEXT) {
-                        mutableMap["desc"] = umXmlPullParser.getText()
+                        tagValue = umXmlPullParser.getText()
                     } else if (umXmlPullParser.getName() == "extensions") {
                         inExtensions = true
                     }
@@ -150,7 +149,7 @@ class XmlPullParserJsImplTest {
                         } else {
                             ""
                         }
-                        mutableMap["extension${extKey}"] = extVal
+                        mutableMap[extKey] = extVal
                     }
                 }
             } else if (evtType == XmlPullParserConstants.END_TAG) {
@@ -162,10 +161,11 @@ class XmlPullParserJsImplTest {
                     }
                 }
             }
+            mutableMap[tagName] = tagValue
             evtType = umXmlPullParser.next()
         } while (evtType != XmlPullParserConstants.END_DOCUMENT)
 
-        assertEquals(mutableListOf(),mutableList)
+        assertEquals("True/False Question",mutableMap["name"])
     }
 
 
