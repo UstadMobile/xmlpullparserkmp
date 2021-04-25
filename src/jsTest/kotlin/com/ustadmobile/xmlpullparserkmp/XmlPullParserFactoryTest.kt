@@ -116,7 +116,7 @@ class XmlPullParserFactoryTest {
     }
 
     @Test
-    fun givenTinCanFile_whenReadingIt_ShouldHaveDocumentName(){
+    fun givenTinCanFile_whenParsing_ShouldParseADocument(){
         umXmlPullParser.setInput(TINCAN_XML)
         val mutableMap = mutableMapOf<Any?,Any?>()
         var inExtensions = false

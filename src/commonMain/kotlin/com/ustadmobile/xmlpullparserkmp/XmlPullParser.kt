@@ -73,7 +73,7 @@ expect interface XmlPullParser {
      * Return namespace URIs for position pos in namespace stack
      * If pos is out of range it throw exception.
      */
-    fun getNamespaceUri(pos: Int): String?
+    fun getNamespaceUri(pos: Int): String
 
     /**
      * Return uri for the given prefix.
@@ -84,12 +84,12 @@ expect interface XmlPullParser {
      * Returns the namespace URI of the specified attribute
      * number index (starts from 0).
      */
-    fun getAttributeNamespace(index: Int): String?
+    fun getAttributeNamespace(index: Int): String
 
     /**
      * Returns the local name of the specified attribute
      */
-    fun getAttributeName(index: Int): String?
+    fun getAttributeName(index: Int): String
 
     /**
      * Returns the prefix of the specified attribute
@@ -99,7 +99,7 @@ expect interface XmlPullParser {
     /**
      * Returns the given attributes value
      */
-    fun getAttributeValue(index: Int): String?
+    fun getAttributeValue(index: Int): String
 
     /**
      * Returns the attributes value identified by namespace URI and namespace localName.
