@@ -16,9 +16,13 @@ expect interface XmlSerializer {
 
     fun text(text: String): XmlSerializer
 
+    fun cdsect(text: String)
+
     fun entityRef(text: String)
 
     fun endTag(namespace: String?, name: String): XmlSerializer
 
     fun endDocument()
+
+    fun flush()
 }

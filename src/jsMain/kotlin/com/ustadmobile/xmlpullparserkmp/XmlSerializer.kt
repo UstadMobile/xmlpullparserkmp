@@ -13,7 +13,9 @@ actual interface XmlSerializer {
     ): XmlSerializer
 
     actual fun text(text: String): XmlSerializer
+    actual fun cdsect(text: String)
     actual fun endTag(namespace: String?, name: String): XmlSerializer
     actual fun endDocument()
     actual fun entityRef(text: String)
+    actual fun flush()
 }
