@@ -45,6 +45,15 @@ class XmlPullParserJsImpl: XmlPullParser {
 
     private fun logParserEvents(){
         while ({ nextNode = treeWalker.nextNode(); nextNode }() != null){
+
+            if(nextNode?.nodeType == Node.TEXT_NODE){
+                eventsStack.add(ParserEvent().apply {
+                    eventNode = nextNode
+                    eventType = TEXT
+                    eventNodeDepth = parentNodesStack.size + 1
+                })
+            }
+
             eventsStack.add(ParserEvent().apply {
                 eventNode = nextNode
                 eventType = START_TAG
@@ -52,13 +61,6 @@ class XmlPullParserJsImpl: XmlPullParser {
             })
 
             if(nextNode?.hasChildNodes() == false){
-                if(nextNode?.nodeType == Node.TEXT_NODE){
-                    eventsStack.add(ParserEvent().apply {
-                        eventNode = nextNode
-                        eventType = TEXT
-                        eventNodeDepth = parentNodesStack.size + 1
-                    })
-                }
                 eventsStack.add(ParserEvent().apply {
                     eventNode = nextNode
                     eventType = END_TAG
@@ -145,12 +147,12 @@ class XmlPullParserJsImpl: XmlPullParser {
     override fun getText(): String? {
         return if(currentEvent?.eventNode?.nodeType == Node.TEXT_NODE){
             currentEvent?.eventNode?.textContent
-        }else null
+        } else null
     }
 
     override fun getNamespace(): String? {
         return  if(isNsEnabledAndStartOrEndTag())
-                getCurrentEventElement()?.namespaceURI
+            getCurrentEventElement()?.namespaceURI
         else if (!processNsp) ""  else null
     }
 
@@ -159,7 +161,7 @@ class XmlPullParserJsImpl: XmlPullParser {
     }
 
     override fun getName(): String? {
-        return currentEvent?.eventNode?.nodeName
+        return currentEvent?.eventNode?.nodeName?.toLowerCase()
     }
 
     override fun getPrefix(): String? {
@@ -176,7 +178,7 @@ class XmlPullParserJsImpl: XmlPullParser {
     }
 
     override fun getEventType(): Int {
-       return currentEvent?.eventType ?: -1
+        return currentEvent?.eventType ?: -1
     }
 
     override fun setFeature(name: String, state: Boolean) {
@@ -198,7 +200,8 @@ class XmlPullParserJsImpl: XmlPullParser {
 
     override fun getNamespaceCount(depth: Int): Int {
         val namespaceSet = mutableSetOf<String>()
-        eventsStack.filter { it.eventNodeDepth == depth}.forEach {
+        val mDepth = depth + if(currentEvent?.eventType == END_TAG) 1 else 0
+        eventsStack.filter { it.eventNodeDepth == mDepth}.forEach {
             val namespace = getCurrentEventElement(it)?.namespaceURI
             if(namespace != null){
                 namespaceSet.add(namespace)
@@ -209,27 +212,24 @@ class XmlPullParserJsImpl: XmlPullParser {
 
     override fun getNamespacePrefix(pos: Int): String? {
         val attributes = getAttributes()
-        return if(attributes.isNotEmpty()) attributes[pos].prefix else null
+        return attributes[pos].prefix
     }
 
-    override fun getNamespaceUri(pos: Int): String? {
+    override fun getNamespaceUri(pos: Int): String {
         val attributes = getAttributes()
-        return if(attributes.isNotEmpty()) attributes[pos].namespaceURI else null
+        return if(attributes.size < pos) throw XmlPullParserException("")  else attributes[pos].namespaceURI?:""
     }
 
-    @Suppress("RedundantNullableReturnType")
-    override fun getAttributeNamespace(index: Int): String? {
+    override fun getAttributeNamespace(index: Int): String {
         val ns = getNamespaceUri(index)
         return if(!processNsp || ns == null) "" else if(currentEvent?.eventType != START_TAG)
             throw IndexOutOfBoundsException() else ns
     }
 
-    override fun getAttributeName(index: Int): String? {
+    override fun getAttributeName(index: Int): String {
         val attributes = getAttributes()
-        return if(currentEvent?.eventType != START_TAG) throw IndexOutOfBoundsException()
-        else if(attributes.isNotEmpty())
-            if(processNsp) attributes[index].name else attributes[index].localName
-        else null
+        return if(currentEvent?.eventType != START_TAG || attributes.size < index) throw IndexOutOfBoundsException()
+        else if(processNsp) attributes[index].name else attributes[index].localName
     }
 
     override fun getAttributePrefix(index: Int): String? {
@@ -238,18 +238,19 @@ class XmlPullParserJsImpl: XmlPullParser {
         else if(attributes.isNotEmpty() && processNsp) attributes[index].prefix else null
     }
 
-    override fun getAttributeValue(index: Int): String? {
+    override fun getAttributeValue(index: Int): String {
         val attributes = getAttributes()
-        return if(currentEvent?.eventType != START_TAG) throw IndexOutOfBoundsException()
-        else if(attributes.isNotEmpty()) attributes[index].value else null
+        return when {
+            currentEvent?.eventType != START_TAG || attributes.size < index -> throw IndexOutOfBoundsException()
+            else -> attributes[index].value
+        }
     }
 
     override fun getAttributeValue(namespace: String?, name: String): String? {
         return when {
             currentEvent?.eventType != START_TAG -> throw IndexOutOfBoundsException()
-            processNsp -> getAttributes().first {(it.name == name || it.name.contains(name))
-                    && (it.namespaceURI == null || it.namespaceURI == namespace)}.value
-            else -> null
+            else -> getAttributes().firstOrNull {(it.name == name || it.name.contains(name))
+                    && (it.namespaceURI == null || it.namespaceURI == namespace)}?.value
         }
     }
 
@@ -283,12 +284,18 @@ class XmlPullParserJsImpl: XmlPullParser {
         if(currentEvent?.eventType == TEXT) {
             result = getText()
             next()
+            /*
+            TreeWalker parsing is different, for every text node the inner content is treated as text node too,
+            so to make sure we maintain the logic we have to come out of that inner text node by calling next()
+            again, otherwise it will always throw an exception since the next event wont be END_TAG
+            */
+            next()
         }else {
             result = ""
         }
-
-        if(currentEvent?.eventType != END_TAG)
+        if(currentEvent?.eventType != END_TAG){
             throw XmlPullParserException("nextText: END_TAG expected")
+        }
 
         return result
     }

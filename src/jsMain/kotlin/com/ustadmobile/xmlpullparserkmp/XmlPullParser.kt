@@ -71,7 +71,7 @@ actual interface XmlPullParser {
      * Return namespace URIs for position pos in namespace stack
      * If pos is out of range it throw exception.
      */
-    actual fun getNamespaceUri(pos: Int): String?
+    actual fun getNamespaceUri(pos: Int): String
 
     /**
      * Return uri for the given prefix.
@@ -82,12 +82,12 @@ actual interface XmlPullParser {
      * Returns the namespace URI of the specified attribute
      * number index (starts from 0).
      */
-    actual fun getAttributeNamespace(index: Int): String?
+    actual fun getAttributeNamespace(index: Int): String
 
     /**
      * Returns the local name of the specified attribute
      */
-    actual fun getAttributeName(index: Int): String?
+    actual fun getAttributeName(index: Int): String
 
     /**
      * Returns the prefix of the specified attribute
@@ -97,7 +97,7 @@ actual interface XmlPullParser {
     /**
      * Returns the given attributes value
      */
-    actual fun getAttributeValue(index: Int): String?
+    actual fun getAttributeValue(index: Int): String
 
     /**
      * Returns the attributes value identified by namespace URI and namespace localName.
@@ -109,8 +109,6 @@ actual interface XmlPullParser {
      */
     actual operator fun next(): Int
 
-    actual fun nextText(): String?
-
     /**
      * Set source content to be parsed
      */
@@ -118,6 +116,9 @@ actual interface XmlPullParser {
 
     actual fun nextToken(): Int
 
+    actual fun nextText(): String?
+
     actual fun nextTag(): Int
+
 
 }
