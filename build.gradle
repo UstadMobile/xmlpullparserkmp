@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.ustadmobile.xmlpullparserkmp'
-version = '0.0.14'
+version = '0.0.15'
 def localProperties = new Properties()
 if(project.file("local.properties").exists()) {
     localProperties.load(new FileInputStream(project.file("local.properties")))

@@ -2,6 +2,8 @@ package com.ustadmobile.xmlpullparserkmp
 
 import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.END_DOCUMENT
 import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.END_TAG
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.PROPERTY_STANDALONE
+import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.PROPERTY_VERSION
 import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.START_DOCUMENT
 import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.START_TAG
 import com.ustadmobile.xmlpullparserkmp.XmlPullParserConstants.TEXT
@@ -12,6 +14,8 @@ import org.w3c.dom.parsing.DOMParser
 class XmlPullParserJsImpl: XmlPullParser {
 
     private lateinit var treeWalker: TreeWalker
+
+    private lateinit var document: Document
 
     private val eventsStack = mutableListOf<ParserEvent>()
 
@@ -28,9 +32,9 @@ class XmlPullParserJsImpl: XmlPullParser {
     private var relaxed: Boolean = true
 
     override fun setInput(content: String) {
-        treeWalker = document.createTreeWalker(DOMParser().parseFromString(content,
-            "text/${if(content.startsWith("<?xml")) "xml" else "html"}"),
-            NodeFilter.SHOW_ALL) { NodeFilter.FILTER_ACCEPT }
+        document = DOMParser().parseFromString(content,
+            "text/${if(content.startsWith("<?xml")) "xml" else "html"}")
+        treeWalker = document.createTreeWalker(document, NodeFilter.SHOW_ALL) { NodeFilter.FILTER_ACCEPT }
         logParserEvents()
     }
 
@@ -299,4 +303,16 @@ class XmlPullParserJsImpl: XmlPullParser {
 
         return result
     }
+
+    override fun getProperty(name: String): Any? {
+        return when(name) {
+            PROPERTY_VERSION -> "1.0"
+            PROPERTY_STANDALONE -> {
+                (document as? XMLDocument)?.asDynamic()?.xmlStandalone
+            }
+            else -> null
+        }
+    }
+
+    override fun getInputEncoding() = document.inputEncoding
 }

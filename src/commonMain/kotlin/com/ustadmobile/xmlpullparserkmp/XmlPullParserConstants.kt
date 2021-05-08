@@ -38,4 +38,8 @@ object XmlPullParserConstants {
     const val ENTITY_REF = 6
 
     val FEATURE_PROCESS_NAMESPACES = "http://xmlpull.org/v1/doc/features.html#process-namespaces"
+
+    val PROPERTY_STANDALONE = "http://xmlpull.org/v1/doc/properties.html#xmldecl-standalone"
+
+    val PROPERTY_VERSION = "http://xmlpull.org/v1/doc/properties.html#xmldecl-version"
 }

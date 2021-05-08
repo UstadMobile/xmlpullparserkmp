@@ -120,5 +120,7 @@ actual interface XmlPullParser {
 
     actual fun nextTag(): Int
 
+    actual fun getProperty(name: String): Any?
 
+    actual fun getInputEncoding(): String
 }

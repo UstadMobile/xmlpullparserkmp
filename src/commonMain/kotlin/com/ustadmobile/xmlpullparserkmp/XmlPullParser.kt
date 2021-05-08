@@ -116,4 +116,8 @@ expect interface XmlPullParser {
     fun nextText(): String?
 
     fun nextTag(): Int
+
+    fun getProperty(name: String): Any?
+
+    fun getInputEncoding(): String
 }
