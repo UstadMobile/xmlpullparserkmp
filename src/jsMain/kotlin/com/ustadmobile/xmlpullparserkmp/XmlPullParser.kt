@@ -1,5 +1,7 @@
 package com.ustadmobile.xmlpullparserkmp
 
+import org.w3c.dom.Node
+
 /**
  * Interface responsible for defining all the parsing functionality
  *
@@ -123,4 +125,6 @@ actual interface XmlPullParser {
     actual fun getProperty(name: String): Any?
 
     actual fun getInputEncoding(): String
+
+    fun getNode(): Node?
 }

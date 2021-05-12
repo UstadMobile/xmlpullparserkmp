@@ -315,4 +315,8 @@ class XmlPullParserJsImpl: XmlPullParser {
     }
 
     override fun getInputEncoding() = document.inputEncoding
+
+    override fun getNode(): Node? {
+        return currentEvent?.eventNode
+    }
 }
