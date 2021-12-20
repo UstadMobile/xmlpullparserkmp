@@ -165,7 +165,7 @@ class XmlPullParserJsImpl: XmlPullParser {
     }
 
     override fun getName(): String? {
-        return currentEvent?.eventNode?.nodeName?.toLowerCase()
+        return currentEvent?.eventNode?.nodeName?.lowercase()
     }
 
     override fun getPrefix(): String? {
@@ -221,12 +221,12 @@ class XmlPullParserJsImpl: XmlPullParser {
 
     override fun getNamespaceUri(pos: Int): String {
         val attributes = getAttributes()
-        return if(attributes.size < pos) throw XmlPullParserException("")  else attributes[pos].namespaceURI?:""
+        return if(attributes.size < pos) throw XmlPullParserException("")  else attributes[pos].namespaceURI ?: ""
     }
 
     override fun getAttributeNamespace(index: Int): String {
         val ns = getNamespaceUri(index)
-        return if(!processNsp || ns == null) "" else if(currentEvent?.eventType != START_TAG)
+        return if(!processNsp || ns.isEmpty()) "" else if(currentEvent?.eventType != START_TAG)
             throw IndexOutOfBoundsException() else ns
     }
 

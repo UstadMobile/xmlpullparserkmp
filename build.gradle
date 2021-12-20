@@ -1,12 +1,12 @@
 plugins {
-    id 'org.jetbrains.kotlin.multiplatform' version '1.5.0'
+    id 'org.jetbrains.kotlin.multiplatform' version '1.6.10'
     id 'kotlin-android-extensions'
     id 'com.android.library'
     id 'maven-publish'
 }
 
 group = 'com.ustadmobile.xmlpullparserkmp'
-version = '0.0.19'
+version = '0.0.20'
 def localProperties = new Properties()
 if(project.file("local.properties").exists()) {
     localProperties.load(new FileInputStream(project.file("local.properties")))
@@ -27,7 +27,7 @@ kotlin {
         }
     }
 
-    js {
+    js(BOTH) {
         browser {
             testTask {
                 useKarma {
@@ -78,18 +78,18 @@ kotlin {
         androidTest {
             dependencies {
                 implementation kotlin('test-junit')
-                implementation 'junit:junit:4.13'
+                implementation 'junit:junit:4.13.2'
             }
         }
     }
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     sourceSets.main.manifest.srcFile('src/androidMain/AndroidManifest.xml')
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 31
     }
 
     compileOptions {
