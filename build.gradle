@@ -15,7 +15,7 @@ plugins {
 }
 
 group = 'com.github.UstadMobile'
-version = '0.0.21'
+version = '0.0.22'
 
 def localProperties = new Properties()
 if(project.file("local.properties").exists()) {
